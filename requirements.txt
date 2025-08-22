@@ -1,0 +1,14 @@
+transformers==4.41.2
+torch>=2.1.0
+tokenizers>=0.15.2
+sentencepiece>=0.1.99
+
+# Gradio UI
+gradio==4.44.0
+
+# Language tool (API mode = no Java needed)
+language-tool-python==2.7.1
+
+# spaCy + small English pipeline
+spacy==3.7.2
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
