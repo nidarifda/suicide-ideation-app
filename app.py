@@ -33,6 +33,7 @@ AGGRESSION_PATTERNS = [
 ]
 
 def correct_text(text: str) -> str:
+    """Grammar/spelling correction using LanguageTool public API."""
     try:
         matches = tool.check(text)
         return language_tool_python.utils.correct(text, matches)
@@ -108,17 +109,17 @@ with gr.Blocks(
             margin-bottom: 14px !important;
         }
 
-        /* Force text inside disclaimer to black */
+        /* Text inside disclaimer */
         .gr-prose:first-of-type p,
         .gr-prose:first-of-type em {
-            color: black !important;
+            color: #000000 !important;
             opacity: 1 !important;
         }
 
-        /* Make 'Important:' visible and bold black */
+        /* Make 'Important:' bold black and visible */
         .gr-prose:first-of-type strong {
             color: #000000 !important;
-            font-weight: 800 !important;
+            font-weight: 900 !important;
             opacity: 1 !important;
         }
 
@@ -155,7 +156,11 @@ with gr.Blocks(
     gr.Markdown("# Suicide Ideation Detection")
     gr.Markdown(DESCRIPTION)
 
-    inp = gr.Textbox(label="Enter a Tweet or Short Message", lines=4, placeholder="e.g., I can't do this anymore...")
+    inp = gr.Textbox(
+        label="Enter a Tweet or Short Message",
+        lines=4,
+        placeholder="e.g., I can't do this anymore..."
+    )
 
     with gr.Row():
         out_pred = gr.Label(label="Prediction")
@@ -173,7 +178,9 @@ with gr.Blocks(
         },
     )
 
-    gr.Markdown("**Disclaimer:** Outputs may be imperfect. Use human judgment and, when in doubt, escalate to a qualified professional.")
+    gr.Markdown(
+        "**Disclaimer:** Outputs may be imperfect. Use human judgment and, when in doubt, escalate to a qualified professional."
+    )
 
 if __name__ == "__main__":
     demo.launch()
