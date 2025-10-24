@@ -12,13 +12,9 @@ import spacy
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_DIR = "model"   # folder in repo
 
-# Grammar correction via LanguageTool public API
 tool = language_tool_python.LanguageToolPublicAPI('en-US')
-
-# Lightweight spaCy pipeline
 nlp = spacy.load("en_core_web_sm")
 
-# Load fine-tuned model + tokenizer
 tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_DIR)
 model = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
 model.to(DEVICE).eval()
@@ -37,7 +33,6 @@ AGGRESSION_PATTERNS = [
 ]
 
 def correct_text(text: str) -> str:
-    """Grammar/spelling correction using LanguageTool public API."""
     try:
         matches = tool.check(text)
         return language_tool_python.utils.correct(text, matches)
@@ -64,7 +59,7 @@ def is_violence_directed_at_others(text: str) -> bool:
 
 # ============== Inference ==============
 
-THRESHOLD = 0.70  # confidence threshold
+THRESHOLD = 0.70
 
 def predict(text: str):
     if not text or not text.strip():
@@ -72,11 +67,9 @@ def predict(text: str):
 
     corrected = correct_text(text)
 
-    # Rule-based early exits (reduce false positives)
     if is_false_positive(corrected) or is_aggression_not_suicide(corrected) or is_violence_directed_at_others(corrected):
         return {"Prediction": "Not Suicide", "Confidence (Suicide)": "0.0000", "Corrected": corrected}
 
-    # Transformer inference
     enc = tokenizer(corrected, return_tensors="pt", truncation=True, padding=True, max_length=256)
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
 
@@ -109,7 +102,7 @@ with gr.Blocks(
         .gr-markdown:first-of-type div,
         .gr-prose:first-of-type {
             background-color: #6666ff !important;
-            color: white !important;
+            color: black !important;              /* <-- make text black */
             border-radius: 10px !important;
             padding: 14px 18px !important;
             font-weight: 500 !important;
