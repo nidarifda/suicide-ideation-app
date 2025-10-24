@@ -33,6 +33,7 @@ AGGRESSION_PATTERNS = [
 ]
 
 def correct_text(text: str) -> str:
+    """Grammar/spelling correction using LanguageTool public API."""
     try:
         matches = tool.check(text)
         return language_tool_python.utils.correct(text, matches)
@@ -59,7 +60,7 @@ def is_violence_directed_at_others(text: str) -> bool:
 
 # ============== Inference ==============
 
-THRESHOLD = 0.70
+THRESHOLD = 0.70  # confidence threshold
 
 def predict(text: str):
     if not text or not text.strip():
@@ -67,9 +68,11 @@ def predict(text: str):
 
     corrected = correct_text(text)
 
+    # Rule-based early exits (reduce false positives)
     if is_false_positive(corrected) or is_aggression_not_suicide(corrected) or is_violence_directed_at_others(corrected):
         return {"Prediction": "Not Suicide", "Confidence (Suicide)": "0.0000", "Corrected": corrected}
 
+    # Transformer inference
     enc = tokenizer(corrected, return_tensors="pt", truncation=True, padding=True, max_length=256)
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
 
@@ -102,11 +105,17 @@ with gr.Blocks(
         .gr-markdown:first-of-type div,
         .gr-prose:first-of-type {
             background-color: #6666ff !important;
-            color: black !important;              /* <-- make text black */
             border-radius: 10px !important;
             padding: 14px 18px !important;
             font-weight: 500 !important;
             margin-bottom: 12px !important;
+        }
+
+        /* Force text inside disclaimer to black */
+        .gr-prose:first-of-type p,
+        .gr-prose:first-of-type strong,
+        .gr-prose:first-of-type em {
+            color: black !important;
         }
 
         /* ==== 2. Remove unwanted white backgrounds ==== */
