@@ -105,7 +105,42 @@ It applies grammar correction and rule-based filters to reduce false positives.
 If you or someone you know is in crisis, please seek professional help or contact local emergency services immediately.
 """
 
-with gr.Blocks(title="Suicide Ideation Detection") as demo:
+with gr.Blocks(
+    title="Suicide Ideation Detection",
+    css="""
+        /* Make the top info/disclaimer box purple-blue (#6666ff) */
+        .gr-block.gr-markdown:first-child div {
+            background-color: #6666ff !important;
+            color: white !important;
+            padding: 12px !important;
+            border-radius: 6px !important;
+            font-weight: 500 !important;
+        }
+
+        /* App background */
+        body, .gradio-container {
+            background-color: #0b0b12 !important;
+            color: white !important;
+        }
+
+        /* Text boxes and labels */
+        textarea, input, .gr-textbox, .gr-label {
+            background-color: #1c1f2b !important;
+            color: white !important;
+        }
+
+        /* Buttons */
+        button {
+            background-color: #ff6600 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+
+        button:hover {
+            background-color: #e65c00 !important;
+        }
+    """
+) as demo:
     gr.Markdown("# Suicide Ideation Detection")
     gr.Markdown(DESCRIPTION)
 
