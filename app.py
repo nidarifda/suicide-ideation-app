@@ -79,73 +79,174 @@ If you or someone you know is in crisis, please seek professional help or contac
 
 with gr.Blocks(
     title="Suicide Ideation Detection",
+    theme=gr.themes.Soft(
+        primary_hue="orange",
+        secondary_hue="gray",
+        neutral_hue="slate"
+    ),
     css="""
-        /* ==== 1. Banner styling ==== */
-        .gr-block.gr-markdown:first-child,
-        .gr-block.gr-markdown:first-child > div,
-        .gr-markdown:first-of-type,
-        .gr-markdown:first-of-type div,
-        .gr-prose:first-of-type {
+        /* ==== 1. Disclaimer Box Styling ==== */
+        .disclaimer-box {
             background-color: #6666ff !important;
             border-radius: 12px !important;
-            padding: 14px 18px !important;
-            margin-bottom: 14px !important;
+            padding: 16px 20px !important;
+            margin: 10px 0 !important;
+            border: 2px solid #8888ff !important;
         }
-
-        /* Force all text inside banner to black */
-        .gr-prose:first-of-type,
-        .gr-prose:first-of-type p,
-        .gr-prose:first-of-type strong,
-        .gr-prose:first-of-type em {
+        
+        .disclaimer-box p, 
+        .disclaimer-box strong, 
+        .disclaimer-box em {
             color: #000000 !important;
-            opacity: 1 !important;
-            --body-text-color: #000000 !important;
-            text-shadow: none !important;
+            margin: 0 !important;
+            font-weight: 500 !important;
+        }
+        
+        .disclaimer-box * {
+            color: #000000 !important;
         }
 
-        /* ==== 2. Remove unwanted white backgrounds ==== */
-        .gr-markdown, .gr-prose {
-            background: transparent !important;
-        }
-
-        /* ==== 3. Dark theme for app ==== */
-        body, .gradio-container {
-            background-color: #0b0b12 !important;
+        /* ==== 2. Main Container ==== */
+        .gradio-container {
+            background: linear-gradient(135deg, #0b0b12 0%, #1a1a2e 100%) !important;
             color: white !important;
+            font-family: 'Segoe UI', system-ui, sans-serif !important;
         }
 
-        textarea, input, .gr-textbox, .gr-label {
+        /* ==== 3. Text Inputs ==== */
+        .gr-textbox textarea, 
+        .gr-textbox input {
             background-color: #1c1f2b !important;
             color: white !important;
+            border: 1px solid #444 !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+            font-size: 14px !important;
+        }
+        
+        .gr-textbox textarea:focus,
+        .gr-textbox input:focus {
+            border-color: #ff6600 !important;
+            box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2) !important;
         }
 
+        /* ==== 4. Labels ==== */
+        .gr-label {
+            background-color: #2d3748 !important;
+            color: white !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            margin-bottom: 5px !important;
+            font-weight: 600 !important;
+        }
+
+        /* ==== 5. Buttons ==== */
         button {
-            background-color: #ff6600 !important;
+            background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 6px rgba(255, 102, 0, 0.3) !important;
+        }
+        
+        button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 8px rgba(255, 102, 0, 0.4) !important;
+            background: linear-gradient(135deg, #e65c00 0%, #ff751a 100%) !important;
+        }
+        
+        button:active {
+            transform: translateY(0) !important;
+        }
+
+        /* ==== 6. Output Labels ==== */
+        .gr-box {
+            background-color: #2d3748 !important;
+            border: 1px solid #444 !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
+        }
+        
+        /* ==== 7. Prediction Output Styling ==== */
+        .prediction-positive {
+            background-color: #e53e3e !important;
             color: white !important;
             font-weight: bold !important;
-            border-radius: 8px !important;
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
+        }
+        
+        .prediction-negative {
+            background-color: #38a169 !important;
+            color: white !important;
+            font-weight: bold !important;
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
         }
 
-        button:hover {
-            background-color: #e65c00 !important;
+        /* ==== 8. Header Styling ==== */
+        .gr-markdown h1 {
+            color: white !important;
+            text-align: center !important;
+            margin-bottom: 20px !important;
+            font-weight: 700 !important;
+            font-size: 2.5em !important;
+            background: linear-gradient(135deg, #ff6600 0%, #ffa366 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+
+        /* ==== 9. Footer Disclaimer ==== */
+        .gr-markdown:last-of-type {
+            background-color: #2d3748 !important;
+            border-left: 4px solid #ff6600 !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            margin-top: 20px !important;
         }
     """
 ) as demo:
     gr.Markdown("# Suicide Ideation Detection")
-    gr.Markdown(DESCRIPTION)
+    
+    # Disclaimer with custom class
+    gr.Markdown(DESCRIPTION, elem_classes="disclaimer-box")
 
     inp = gr.Textbox(
         label="Enter a Tweet or Short Message",
         lines=4,
-        placeholder="e.g., I can't do this anymore..."
+        placeholder="e.g., I can't do this anymore...",
+        elem_id="input-textbox"
     )
 
     with gr.Row():
-        out_pred = gr.Label(label="Prediction")
-        out_conf = gr.Label(label="Confidence (Suicide)")
-    out_text = gr.Textbox(label="Corrected Message", lines=4)
+        out_pred = gr.Label(
+            label="Prediction",
+            value="—",
+            elem_id="prediction-output"
+        )
+        out_conf = gr.Label(
+            label="Confidence (Suicide)",
+            value="0.0000",
+            elem_id="confidence-output"
+        )
+    
+    out_text = gr.Textbox(
+        label="Corrected Message", 
+        lines=4,
+        elem_id="corrected-output"
+    )
 
-    btn = gr.Button("Analyze")
+    btn = gr.Button(
+        "🔍 Analyze Text", 
+        variant="primary",
+        elem_id="analyze-button"
+    )
+    
     btn.click(
         fn=predict,
         inputs=inp,
@@ -161,4 +262,7 @@ with gr.Blocks(
     )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(
+        server_name="0.0.0.0" if os.getenv("GRADIO_SHARE") else "127.0.0.1",
+        share=bool(os.getenv("GRADIO_SHARE"))
+    )
