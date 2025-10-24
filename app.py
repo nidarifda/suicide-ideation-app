@@ -5,8 +5,6 @@ import gradio as gr
 # --- NLP + tooling ---
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 import language_tool_python
-
-# Optional: lightweight spaCy for rule-based parsing (no heavy pipelines)
 import spacy
 
 # ============== Safety & Setup ==============
@@ -14,15 +12,13 @@ import spacy
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_DIR = "model"   # folder in repo
 
-# LanguageTool: use public API (no Java needed)
-# If you get rate-limited, you can switch to a hosted LT server later.
+# Grammar correction via LanguageTool public API
 tool = language_tool_python.LanguageToolPublicAPI('en-US')
 
-# Load a tiny spaCy English pipeline (tokenizer/lemmatizer/pos)
-# The model is installed via requirements.txt
+# Lightweight spaCy pipeline
 nlp = spacy.load("en_core_web_sm")
 
-# Load fine-tuned model + tokenizer from local folder
+# Load fine-tuned model + tokenizer
 tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_DIR)
 model = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
 model.to(DEVICE).eval()
@@ -41,12 +37,11 @@ AGGRESSION_PATTERNS = [
 ]
 
 def correct_text(text: str) -> str:
-    """Grammar/spelling correction with LanguageTool public API."""
+    """Grammar/spelling correction using LanguageTool public API."""
     try:
         matches = tool.check(text)
         return language_tool_python.utils.correct(text, matches)
     except Exception:
-        # Fallback: return original text if API fails
         return text
 
 def is_false_positive(text: str) -> bool:
@@ -59,7 +54,6 @@ def is_aggression_not_suicide(text: str) -> bool:
 
 def is_violence_directed_at_others(text: str) -> bool:
     doc = nlp(text.lower())
-    # simple heuristic: "kill" root verb with object pronoun/noun != self
     for token in doc:
         if token.lemma_ == "kill" and token.dep_ == "ROOT":
             for child in token.children:
@@ -70,7 +64,7 @@ def is_violence_directed_at_others(text: str) -> bool:
 
 # ============== Inference ==============
 
-THRESHOLD = 0.70  # confidence threshold for Suicide Risk
+THRESHOLD = 0.70  # confidence threshold
 
 def predict(text: str):
     if not text or not text.strip():
@@ -98,7 +92,7 @@ def predict(text: str):
 # ============== Gradio UI ==============
 
 DESCRIPTION = """
-This tool detects **suicidal intent** in short text with a fine‑tuned DistilBERT model.
+This tool detects **suicidal intent** in short text with a fine-tuned DistilBERT model.
 It applies grammar correction and rule-based filters to reduce false positives.
 
 **Important:** This is a research tool and not a medical device.  
@@ -108,42 +102,43 @@ If you or someone you know is in crisis, please seek professional help or contac
 with gr.Blocks(
     title="Suicide Ideation Detection",
     css="""
-        /* --- Make disclaimer/info box background #6666ff --- */
-        .gr-prose p:first-child, 
-        .gr-markdown:first-of-type, 
-        .gr-markdown:first-of-type div, 
-        .gr-block.gr-markdown:first-child, 
-        .gr-block.gr-markdown:first-child > div {
+        /* ==== 1. Top info/disclaimer box ==== */
+        .gr-block.gr-markdown:first-child,
+        .gr-block.gr-markdown:first-child > div,
+        .gr-markdown:first-of-type,
+        .gr-markdown:first-of-type div,
+        .gr-prose:first-of-type {
             background-color: #6666ff !important;
             color: white !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
+            border-radius: 10px !important;
+            padding: 14px 18px !important;
             font-weight: 500 !important;
-            margin-bottom: 10px !important;
+            margin-bottom: 12px !important;
         }
 
-        /* Ensure Markdown container itself has no white background */
-        .gr-markdown {
+        /* ==== 2. Remove unwanted white backgrounds ==== */
+        .gr-markdown, .gr-prose {
             background: transparent !important;
         }
 
-        /* General dark theme */
+        /* ==== 3. General dark theme ==== */
         body, .gradio-container {
             background-color: #0b0b12 !important;
             color: white !important;
         }
 
-        /* Textboxes */
+        /* ==== 4. Text areas & labels ==== */
         textarea, input, .gr-textbox, .gr-label {
             background-color: #1c1f2b !important;
             color: white !important;
         }
 
-        /* Buttons */
+        /* ==== 5. Buttons ==== */
         button {
             background-color: #ff6600 !important;
             color: white !important;
             font-weight: bold !important;
+            border-radius: 8px !important;
         }
 
         button:hover {
@@ -162,7 +157,15 @@ with gr.Blocks(
     out_text = gr.Textbox(label="Corrected Message", lines=4)
 
     btn = gr.Button("Analyze")
-    btn.click(fn=predict, inputs=inp, outputs={"Prediction": out_pred, "Confidence (Suicide)": out_conf, "Corrected": out_text})
+    btn.click(
+        fn=predict,
+        inputs=inp,
+        outputs={
+            "Prediction": out_pred,
+            "Confidence (Suicide)": out_conf,
+            "Corrected": out_text,
+        },
+    )
 
     gr.Markdown("**Disclaimer:** Outputs may be imperfect. Use human judgment and, when in doubt, escalate to a qualified professional.")
 
