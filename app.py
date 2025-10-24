@@ -108,22 +108,32 @@ If you or someone you know is in crisis, please seek professional help or contac
 with gr.Blocks(
     title="Suicide Ideation Detection",
     css="""
-        /* Make the top info/disclaimer box purple-blue (#6666ff) */
-        .gr-block.gr-markdown:first-child div {
+        /* --- Make disclaimer/info box background #6666ff --- */
+        .gr-prose p:first-child, 
+        .gr-markdown:first-of-type, 
+        .gr-markdown:first-of-type div, 
+        .gr-block.gr-markdown:first-child, 
+        .gr-block.gr-markdown:first-child > div {
             background-color: #6666ff !important;
             color: white !important;
-            padding: 12px !important;
-            border-radius: 6px !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
             font-weight: 500 !important;
+            margin-bottom: 10px !important;
         }
 
-        /* App background */
+        /* Ensure Markdown container itself has no white background */
+        .gr-markdown {
+            background: transparent !important;
+        }
+
+        /* General dark theme */
         body, .gradio-container {
             background-color: #0b0b12 !important;
             color: white !important;
         }
 
-        /* Text boxes and labels */
+        /* Textboxes */
         textarea, input, .gr-textbox, .gr-label {
             background-color: #1c1f2b !important;
             color: white !important;
